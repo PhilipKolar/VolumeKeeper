@@ -5,7 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import com.philkolar.volumekeeper.R
+import com.philkolar.volumekeeper.module.R
 import com.philkolar.volumekeeper.core.CsdNotificationMatcher
 
 /** VolumeKeeper's own notifications. Channel ids are immutable once created: bump the suffix to change one. */

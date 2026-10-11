@@ -7,7 +7,7 @@ group = 'com.philkolar.volumekeeper'
 version = '0.1.0'
 
 android {
-  namespace "com.philkolar.volumekeeper"
+  namespace "com.philkolar.volumekeeper.module"
   defaultConfig {
     versionCode 1
     versionName '0.1.0'

@@ -245,9 +245,10 @@ All secrets are gitignored or outside the repo. Never commit `*.keystore`, `.env
 |--------|---------|-------|
 | `ANDROID_KEYSTORE_BASE64` | `base64 -w0` of the release keystore | set 2026-10-12 |
 | `ANDROID_KEYSTORE_PASSWORD` | keystore password | set |
-| `ANDROID_KEY_ALIAS` | `volumekeeper` | set |
 | `ANDROID_KEY_PASSWORD` | key password (same as keystore) | set |
 
+The key alias `volumekeeper` is plain text in build-android.yml, not a secret: GitHub masks secret
+values in logs, and an alias secret turned every "volumekeeper" in the build log into `***`.
 No `EXPO_TOKEN` and no EAS project: the build never talks to Expo's servers.
 
 The release keystore lives at `~/VolumeKeeper-secrets/volumekeeper-release.keystore` (alias
@@ -313,6 +314,11 @@ major = redesign. Current: **0.1.1 / versionCode 2** (release installed on the P
   restore. The dev variant ships with its master switch off.
 - Android `Alert.alert` shows at most three buttons (PKTrainer lesson) — anything longer needs a sheet.
 - `adb install` hangs while the app is running — `vk.sh install` force-stops first.
+- **The native module's Gradle namespace is `com.philkolar.volumekeeper.module`, never the app id.**
+  With `com.philkolar.volumekeeper` the release app and the library both generated
+  `com.philkolar.volumekeeper.BuildConfig` and the release build failed in `mergeDexRelease`
+  ("defined multiple times"); the dev variant (`….dev`) hid it. Kotlin packages stay
+  `com.philkolar.volumekeeper.*`; only `R` lives under `.module`.
 
 ---
 

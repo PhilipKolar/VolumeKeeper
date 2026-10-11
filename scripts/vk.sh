@@ -28,10 +28,11 @@ sim() { adb shell am broadcast -n "$RECEIVER" "$@" >/dev/null && echo "sent: $*"
 cmd="${1:-state}"; shift || true
 case "$cmd" in
   fetch)
-    mkdir -p "$REPO_ROOT/.apks"
+    cd "$REPO_ROOT"
+    mkdir -p .apks
     RUN="${1:-$(gh run list --workflow=build-android.yml --status success --limit 1 --json databaseId -q '.[0].databaseId')}"
-    gh run download "$RUN" --dir "$REPO_ROOT/.apks/$RUN"
-    find "$REPO_ROOT/.apks/$RUN" -name '*.apk'
+    gh run download "$RUN" --dir ".apks/$RUN"
+    find ".apks/$RUN" -name '*.apk'
     ;;
   install)
     APK="${1:?apk path}"

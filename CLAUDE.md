@@ -166,7 +166,7 @@ cd ~/repos/VolumeKeeper/app && nvm use 22 && npm install --legacy-peer-deps
 ### Connecting the Pixel (wireless debugging)
 1. Phone: Developer options → Wireless debugging → "Pair device with pairing code"; keep the dialog open.
 2. `adb pair <ip:pairing-port> <code>` (only works while the dialog is open).
-3. `adb mdns services` shows the `_adb-tls-connect` port → `adb connect 192.168.0.103:<port>`.
+3. `adb mdns services` shows the `_adb-tls-connect` port → `adb connect <phone-ip>:<port>`.
    The connect port changes whenever wireless debugging restarts. Keep one adb transport.
 
 ### Building — GitHub only (Phil's rule)
@@ -306,7 +306,7 @@ major = redesign. Current: **0.1.0 / versionCode 1**.
 - `Settings.System volume_music_*` keys are not readable by apps (not `@Readable`): the observer is a
   trigger only; read `getStreamVolume` instead.
 - Bluetooth device keys use the last two address bytes, because addresses are anonymised
-  (`XX:XX:XX:XX:C1:2E`) until BLUETOOTH_CONNECT is granted — keeps keys stable across the grant.
+  (`XX:XX:XX:XX:AB:CD`) until BLUETOOTH_CONNECT is granted — keeps keys stable across the grant.
 - MacroDroid's macro + VolumeKeeper = possible 100% blast. Both VolumeKeeper variants enabled = double
   restore. The dev variant ships with its master switch off.
 - Android `Alert.alert` shows at most three buttons (PKTrainer lesson) — anything longer needs a sheet.

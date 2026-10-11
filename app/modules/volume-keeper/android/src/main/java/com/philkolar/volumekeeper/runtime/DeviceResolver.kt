@@ -14,8 +14,8 @@ import com.philkolar.volumekeeper.core.OutputType
  * Which output STREAM_MUSIC is playing on right now, as a [Device] — or null for anything
  * VolumeKeeper ignores (speaker, earpiece, HDMI, hearing aids, …).
  *
- * Bluetooth keys use only the last two address bytes ("bt:C1:2E"): without BLUETOOTH_CONNECT
- * Android anonymises addresses to "XX:XX:XX:XX:C1:2E", so this key is the same before and after
+ * Bluetooth keys use only the last two address bytes ("bt:AB:CD"): without BLUETOOTH_CONNECT
+ * Android anonymises addresses to "XX:XX:XX:XX:AB:CD", so this key is the same before and after
  * the permission is granted.
  */
 class DeviceResolver(private val context: Context, private val audio: AudioManager, private val prefs: Prefs) {

@@ -1,7 +1,7 @@
 package com.philkolar.volumekeeper.core
 
-val SONY = Device("bt:88:C9:E8:69:C1:2E", OutputType.BT_A2DP, "WH-1000XM5")
-val SHOKZ = Device("bt:20:74:CF:00:21:43", OutputType.BT_A2DP, "OpenRun Pro 2")
+val SONY = Device("bt:AA:01", OutputType.BT_A2DP, "WH-1000XM5")
+val SHOKZ = Device("bt:BB:02", OutputType.BT_A2DP, "OpenRun Pro 2")
 val WIRED = Device("wired:headphone", OutputType.WIRED_HEADPHONES, "Wired headphones")
 
 /** A tiny phone: the engine plus the state a real AudioManager would report in the probe. */

@@ -5,7 +5,7 @@ import type { EventRow, Status } from "../../modules/volume-keeper/src/VolumeKee
 
 const base: EventRow = {
   id: 1, at: 0, kind: "csd", outcome: "RESTORED", reason: null, csd_kind: "DOSE_1X",
-  device_key: "bt:C1:2E", device_name: "WH-1000XM5", before_level: 18, lowered: 6, restored: 18,
+  device_key: "bt:AB:CD", device_name: "WH-1000XM5", before_level: 18, lowered: 6, restored: 18,
   signal: "notif+broadcast", latency_ms: 312.4, notice_lag_ms: 40, simulated: 0, detail: null,
 }
 
@@ -14,7 +14,7 @@ const status: Status = {
   listenerGranted: true, listenerConnected: true, lastListenerConnect: 0, lastListenerDisconnect: null,
   btPermission: true, notificationsAllowed: true, batteryUnrestricted: true, keepAliveRunning: false,
   settings: { enabled: true, keepAlive: false, notifyOnRestore: false, notifyOnFailure: true, dismissSystemNotice: false, treatSpeakerAsHeadphones: false },
-  device: { key: "bt:C1:2E", name: "WH-1000XM5", type: "BT_A2DP", rs1: 6 }, volume: 18, maxVolume: 25, importance: 125,
+  device: { key: "bt:AB:CD", name: "WH-1000XM5", type: "BT_A2DP", rs1: 6 }, volume: 18, maxVolume: 25, importance: 125,
 }
 
 test("restored event reads before → after with signal and latency", () => {

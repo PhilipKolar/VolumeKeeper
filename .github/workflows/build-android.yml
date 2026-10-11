@@ -4,7 +4,7 @@ name: Build Android APK
 # No EAS at all (not cloud, not `eas build --local`), and never a local build on the PC —
 # Phil's rule: every build happens here. Dispatch it:
 #   gh workflow run build-android.yml --ref develop -f variant=dev
-# Pushes to master build the release variant automatically.
+# Pushes to master build the release variant automatically (docs-only pushes do not).
 on:
   workflow_dispatch:
     inputs:
@@ -15,6 +15,7 @@ on:
         default: release
   push:
     branches: [master]
+    paths-ignore: ['**.md', 'docs/**']
 
 jobs:
   build:

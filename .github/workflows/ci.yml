@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, master]
+  pull_request:
+    branches: [develop, master]
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Install dependencies
+        working-directory: app
+        run: npm ci --legacy-peer-deps
+      - name: Typecheck, TS tests, hex lint, core-purity lint
+        run: SKIP_KOTLIN=1 SKIP_DEVICE=1 ./scripts/smoke-test.sh
+
+  kotlin-core:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/modules/volume-keeper/core-tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: temurin
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Decision-engine unit tests (pure Kotlin, JVM)
+        run: ./gradlew test --no-daemon

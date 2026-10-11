@@ -30,9 +30,11 @@ It replaces a MacroDroid macro ("notification from System UI containing 'volume 
 volume 100%"). **That macro must stay off while VolumeKeeper's master switch is on** — both reacting
 to the same notification race, and MacroDroid's 100% can land last. As of 2026-10-12 Phil has it off.
 
-**Current state (2026-10-12):** planning done; repo, CI and infra scaffolded; v0.1.0 contains the
-full detection engine, runtime and UI and is going through the phase-1 spikes on the phone — see
-Delivery status.
+**Current state (2026-10-12):** v0.1.1 (release variant) is installed on the Pixel with its master
+switch on, waiting for a real-world lowering; the dev variant (0.1.0) is installed with its master
+switch off. Spikes S1, S3 and S4 passed on the phone (docs/csd-findings.md § 9); S5 — forcing a real
+lowering — could not be completed because the WH-1000XM5 does not accumulate sound dose on this
+build, so the first real lowering is the S5 test. Repo is public (made so 2026-10-12 at Phil's request).
 
 ---
 
@@ -144,8 +146,8 @@ pauses it for 30 min. All timing constants live in `core/Windows.kt` and nowhere
 | Phase | Scope | Status |
 |-------|-------|--------|
 | 0 | Repo (private, develop/master), Expo app, native module, CI, GitHub-only APK build, keystore + secrets, docs | **done** 2026-10-12 (v0.1.0 pushed; CI + builds dispatched) |
-| 1 | Spikes S1–S6 on the phone (device-checklist items 3–7) | in progress |
-| 2 | MVP acceptance (items 8–12), release variant installed, one-week soak | code written in 0.1.0; acceptance pending |
+| 1 | Spikes S1–S6 on the phone (device-checklist items 3–7) | S1, S3, S4 **passed** 2026-10-12 (background + screen-off restores accepted, procstate 5 + capability A, ~0.3 s notice delivery). S5 waits for a real lowering (the Sony does not accumulate dose). S2 partly (volume + output traces seen). S6 not run. |
+| 2 | MVP acceptance (items 8–12), release variant installed, one-week soak | 0.1.1 release installed 2026-10-12, master on; real-world soak started |
 | 3 | Polish (items 13–15): keep-alive UX, notifications, CSV share, health notification | partly in 0.1.0 (toggles exist) |
 
 ---
@@ -214,14 +216,14 @@ without waiting for him:
 - **Simulation (dev variant):** `SimulationReceiver` (adb-only, permission DUMP) lowers STREAM_MUSIC to
   the current output's RS1 itself and posts a look-alike notification (tag `vk-sim-csd`), in either
   order with a chosen gap. Exercises everything except the real SystemUI notification.
-- **Scripted user changes:** `vk.sh user N` (`cmd media_session volume --stream 3 --set N`).
+- **Scripted user changes:** `vk.sh user N` (`cmd audio set-volume 3 N`; `cmd media_session volume --set` is logged but silently not applied on Android 17).
 - **Background restore test (S3):** `vk.sh set N` → a Log "test" row says Applied / Not applied.
 - **Real CSD (approved by Phil 2026-10-12 for the spikes):** record `adb shell cmd audio
   get-sound-dose-value` (3.3645012 on 2026-10-12), play music on headphones, `adb shell cmd audio
   set-sound-dose-value 3.99` (1× dialog → wait 5 s) or `4.99` (5×, immediate), then
   `set-sound-dose-value <recorded>`. This collapses the dose history to one record (accepted).
 - **Never, without asking Phil:** any other `audio_safe_csd_*` / global / secure setting change,
-  `reset-sound-dose-timeout`, touching MacroDroid. Pre-approved for spikes: `cmd media_session volume`,
+  `reset-sound-dose-timeout`, touching MacroDroid. Pre-approved for spikes: scripted volume changes (`cmd audio set-volume 3 N`),
   `cmd notification allow_listener` (dev build), `dumpsys deviceidle force-idle` (always `unforce`
   after), `pm grant com.philkolar.volumekeeper.dev android.permission.DUMP`.
 
@@ -262,7 +264,7 @@ See "Building — GitHub only" above. The workflow fails if the APK comes out de
 ### Versioning
 `./scripts/bump-version.sh patch|minor|major` bumps `app/app.json` version and `app/app.config.ts`
 versionCode together (CI's clean prebuild bakes them in). patch = fixes/tweaks, minor = features,
-major = redesign. Current: **0.1.0 / versionCode 1**.
+major = redesign. Current: **0.1.1 / versionCode 2** (release installed on the Pixel 2026-10-12).
 
 ### Git workflow (summary — full rule at the top of this file)
 - Every finished task ends with a commit AND a push on `develop`, then a fast-forward of `master`
@@ -316,8 +318,11 @@ major = redesign. Current: **0.1.0 / versionCode 1**.
 
 ## Backlog
 
-- [ ] Phase 1 spikes S1–S6 (docs/device-checklist.md items 3–7); record measured timings in
-      docs/csd-findings.md § 9 and tune `Windows.kt` if needed.
+- [ ] S5: capture the first real lowering (Log tab → tap the row for the notification fields; check
+      `dumpsys audio` for `CSD lowering volume to RS1`), record it in docs/csd-findings.md § 9 and tune
+      `Windows.kt` if the drop/notice gap differs from the simulation. Find out why the WH-1000XM5 does
+      not accumulate dose (absolute volume? offload path?) — only matters for testing.
+- [ ] S6 (DUMP evidence) and the 20× S3 run with `dumpsys deviceidle force-idle`.
 - [ ] Decide the keep-alive default from S3 (currently off).
 - [ ] Phase 2 acceptance (items 8–12) on the release variant, then a one-week soak; Phil deletes the
       MacroDroid macro afterwards.

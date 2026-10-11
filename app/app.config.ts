@@ -25,6 +25,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   android: {
     ...config.android,
     package: APP_ID,
-    versionCode: 1,
+    versionCode: 2,
   },
 })

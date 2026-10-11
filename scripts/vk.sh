@@ -11,7 +11,8 @@
 #   vk.sh set <n>                   background setStreamVolume + read-back, logged as a "test" event (dev only)
 #   vk.sh speaker on|off            treat the phone speaker as headphones (dev only)
 #   vk.sh enable on|off             master switch (dev only)
-#   vk.sh user <n>                  a user-like change: cmd media_session volume --set n
+#   vk.sh user <n>                  a user-like change: cmd audio set-volume 3 n (cmd media_session
+#                                   volume --set is logged but silently NOT applied on Android 17)
 #   vk.sh vol                       current STREAM_MUSIC index
 #   vk.sh log                       VolumeKeeper logcat lines
 #
@@ -56,7 +57,7 @@ case "$cmd" in
     adb shell cmd audio get-sound-dose-value
     adb shell dumpsys audio | grep -E 'mCurrentCsd|CSD lowering volume to RS1' | tail -4 || true
     echo "== volume"
-    adb shell cmd media_session volume --stream 3 --get | grep -i volume || true
+    adb shell cmd audio get-stream-volume 3 || true
     ;;
   simulate)
     ORDER="${1:-drop-first}"; GAP="${2:-300}"; FROM="${3:-}"; KIND="${4:-1x}"
@@ -66,8 +67,8 @@ case "$cmd" in
   set) sim --es op set --ei value "${1:?level}" ;;
   speaker) sim --es op speaker --es on "$( [[ "${1:-on}" == off ]] && echo false || echo true )" ;;
   enable) sim --es op enable --es on "$( [[ "${1:-on}" == off ]] && echo false || echo true )" ;;
-  user) adb shell cmd media_session volume --stream 3 --set "${1:?level}" ;;
-  vol) adb shell cmd media_session volume --stream 3 --get ;;
+  user) adb shell cmd audio set-volume 3 "${1:?level}" ;;
+  vol) adb shell cmd audio get-stream-volume 3 ;;
   log) adb logcat -d -s VolumeKeeper ;;
   *) sed -n '2,22p' "$0"; exit 1 ;;
 esac

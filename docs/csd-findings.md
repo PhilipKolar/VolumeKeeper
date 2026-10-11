@@ -125,8 +125,31 @@ not frozen (yet). If Google turns that on, the keep-alive FGS is the fallback.
   and **replaces the dose history with one record**. Approved by Phil for spike S5 (3.99 → 1×,
   4.99 → 5×), then set back to the recorded value.
 - `reset-sound-dose-timeout` — resets the 20 h momentary-exposure timer (in memory; never lowers).
-- `cmd media_session volume --stream 3 --set N` / `cmd audio set-volume 3 N` — scripted user-like changes.
+- `cmd audio set-volume 3 N` — scripted user-like changes. (`cmd media_session volume --stream 3 --set N` is logged as `setStreamVolume … from com.android.server.media` but silently not applied on Android 17 — the shell uid fails the app-op check for that package.)
 
-## 9. Measured on the phone (spikes)
+## 9. Measured on the phone (spikes, 2026-10-12, dev build 0.1.0)
 
-_Filled in as the spikes run — see CLAUDE.md § Delivery status._
+- **Listener process state (S1):** in the background the listener binding keeps the process at
+  `curProcState=5` (BOUND_FOREGROUND_SERVICE), capability `---NFUATI` (includes `A` =
+  FOREGROUND_AUDIO_CONTROL), oom adj 250, `isFrozen=false` — exactly as predicted from the source.
+  After `am force-stop` the listener came back by itself on the next app start.
+- **Restores are accepted in the background (S3/S4):** simulated lowerings with the app in the
+  foreground, in the background, and with the screen off (`mWakefulness=Dozing`) were all restored and
+  read back; `dumpsys audio` logged no AudioHardening entries for the package.
+- **Timing (S4, simulation, drop then notice 300 ms apart):** the notification reaches the listener
+  288–336 ms after it is posted (NMS → listener delivery); the restore is issued 6–23 ms after
+  receipt; the `VOLUME_CHANGED` for our own restore arrives 30–520 ms later (slowest with the screen
+  off). Drop → verified restore ≈ 0.7 s including the simulation's own 300 ms gap, so a real lowering
+  (notice right behind the drop) should be undone in roughly 0.3–0.5 s.
+- **S5 (real CSD) not completed:** with `set-sound-dose-value 3.99` and Spotify playing on the
+  WH-1000XM5 at 22/25 for 25 min, the dose never moved. `dumpsys media.audio_flinger` → "Sound Dose:
+  … average MEL 0 … Active Processors: None", and the persisted `audio_safe_csd_dose_records` stop on
+  Fri 9 Oct 23:05 even though the Sony was played at 25 on 12 Oct. The Sony (which had just switched to
+  AVRCP absolute volume) is evidently not accumulating dose on this build; the lowerings Phil sees come
+  from other headsets. The dose was set back to 3.3645012 afterwards. Real-world capture pending.
+- **`cmd media_session volume --stream 3 --set N` is silently ignored on Android 17:** logged as
+  `setStreamVolume(... ) from com.android.server.media` with no VOLUME_CHANGED after it (the shell uid
+  fails the app-op check for that package). `cmd audio set-volume 3 N` works.
+- **`getAudioDevicesForAttributes()` returns nothing right after BLUETOOTH_CONNECT is granted:** it
+  matches the routed device against a cached port list by type AND address, and the cache still holds
+  the anonymised address. Fixed in 0.1.1 with a single-headphone-output fallback (DeviceResolver.kt).

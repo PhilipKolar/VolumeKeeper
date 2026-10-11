@@ -26,7 +26,7 @@ class DeviceResolver(private val context: Context, private val audio: AudioManag
             audio.getAudioDevicesForAttributes(media).firstOrNull()
         } catch (_: Exception) {
             null
-        } ?: return null
+        } ?: fallbackOutput() ?: return null
         val type = typeOf(info.type) ?: return null
         val address = info.address.orEmpty()
         val key = when (type) {
@@ -37,6 +37,21 @@ class DeviceResolver(private val context: Context, private val audio: AudioManag
             OutputType.SPEAKER_TEST -> "speaker:test"
         }
         return Device(key, type, nameOf(info, type, address))
+    }
+
+    /**
+     * getAudioDevicesForAttributes() matches the routed device to a CACHED port list by type AND
+     * address. Right after BLUETOOTH_CONNECT is granted the cache still holds the anonymised address
+     * ("XX:XX:XX:XX:AB:CD") while the routing answer has the real one, so the match comes back empty
+     * until the next device change (seen on the Pixel, 0.1.0). Fall back to the one connected
+     * headphone-type output when there is exactly one; with several, stay unknown rather than guess.
+     */
+    private fun fallbackOutput(): AudioDeviceInfo? = try {
+        audio.getDevices(AudioManager.GET_DEVICES_OUTPUTS)
+            .filter { it.type != AudioDeviceInfo.TYPE_BUILTIN_SPEAKER && typeOf(it.type) != null }
+            .singleOrNull()
+    } catch (_: Exception) {
+        null
     }
 
     private fun typeOf(t: Int): OutputType? = when (t) {

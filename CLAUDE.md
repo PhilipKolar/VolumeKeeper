@@ -31,7 +31,9 @@ volume 100%"). **That macro must stay off while VolumeKeeper's master switch is 
 to the same notification race, and MacroDroid's 100% can land last. As of 2026-10-12 Phil has it off.
 
 **Current state (2026-10-12):** v0.1.1 (release variant) is installed on the Pixel with its master
-switch on, waiting for a real-world lowering; the dev variant (0.1.0) is installed with its master
+switch on and every setup item granted (listener, Nearby devices, notifications, battery unrestricted —
+granted over adb), "Tell me when it restores" turned on for the real-world trial, waiting for a real
+lowering; the dev variant (0.1.0) is installed with its master
 switch off. Spikes S1, S3 and S4 passed on the phone (docs/csd-findings.md § 9); S5 — forcing a real
 lowering — could not be completed because the WH-1000XM5 does not accumulate sound dose on this
 build, so the first real lowering is the S5 test. Repo is public (made so 2026-10-12 at Phil's request).

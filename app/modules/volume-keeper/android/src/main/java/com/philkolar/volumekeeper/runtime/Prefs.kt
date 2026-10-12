@@ -28,8 +28,9 @@ class Prefs(context: Context) {
         get() = sp.getBoolean(KEY_KEEP_ALIVE, false)
         set(v) = sp.edit().putBoolean(KEY_KEEP_ALIVE, v).apply()
 
+    /** On by default: Phil wants to know every time VolumeKeeper changes his audio. */
     var notifyOnRestore: Boolean
-        get() = sp.getBoolean(KEY_NOTIFY_RESTORE, false)
+        get() = sp.getBoolean(KEY_NOTIFY_RESTORE, true)
         set(v) = sp.edit().putBoolean(KEY_NOTIFY_RESTORE, v).apply()
 
     var notifyOnFailure: Boolean

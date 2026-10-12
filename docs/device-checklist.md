@@ -40,7 +40,8 @@ item with a master switch on: **MacroDroid's "volume lowered" macro is off.** Co
 
 ## Phase 3 — polish
 13. Keep-alive on → silent ongoing notification, `curProcState=4`; off → gone.
-14. "Tell me when it restores" posts a quiet notification; "Dismiss Android's notice" clears
+14. Every restore posts a silent "Volume restored: 6 → N" notification (on by default); turning
+    "Tell me when it restores" off stops it; "Dismiss Android's notice" clears
     SystemUI's notification after a real restore.
 15. A failed restore (simulate with AudioHardening blocked, or note any real one) posts the failure
     notification.

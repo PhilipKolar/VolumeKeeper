@@ -38,7 +38,7 @@ export default function SettingsScreen() {
             onChange={set("keepAlive")}
             disabled={!s}
           />
-          <ToggleRow label="Tell me when it restores" detail="A quiet notification each time." value={s?.notifyOnRestore ?? false} onChange={set("notifyOnRestore")} disabled={!s} />
+          <ToggleRow label="Tell me when it restores" detail="A silent notification every time VolumeKeeper changes your volume." value={s?.notifyOnRestore ?? true} onChange={set("notifyOnRestore")} disabled={!s} />
           <ToggleRow label="Tell me when it can't" detail="Android ignored the restore, or the pre-drop level was unknown." value={s?.notifyOnFailure ?? true} onChange={set("notifyOnFailure")} disabled={!s} />
           <ToggleRow label="Dismiss Android's notice" detail={"Clear \"Volume lowered to safer level\" once the volume is back."} value={s?.dismissSystemNotice ?? false} onChange={set("dismissSystemNotice")} disabled={!s} />
         </Card>

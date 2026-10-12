@@ -29,7 +29,7 @@ object Notifier {
         )
         nm.createNotificationChannel(
             NotificationChannel(CH_RESTORES, "Restores", NotificationManager.IMPORTANCE_LOW).apply {
-                description = "Optional: a quiet note each time the volume is put back"
+                description = "A silent note every time VolumeKeeper changes the volume (no sound, so it never plays over music)"
             },
         )
         nm.createNotificationChannel(
@@ -69,9 +69,13 @@ object Notifier {
         )
     }
 
-    fun restored(context: Context, text: String) {
+    fun restored(context: Context, title: String, text: String) {
         val nm = context.getSystemService(NotificationManager::class.java)
-        nm.notify(ID_RESTORE, base(context, CH_RESTORES).setContentTitle("Volume restored").setContentText(text).setAutoCancel(true).build())
+        nm.notify(
+            ID_RESTORE,
+            base(context, CH_RESTORES).setContentTitle(title).setContentText(text)
+                .setStyle(Notification.BigTextStyle().bigText(text)).setAutoCancel(true).build(),
+        )
     }
 
     fun health(context: Context, text: String) {

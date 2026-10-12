@@ -232,7 +232,14 @@ object VkRuntime {
         when (d.outcome) {
             Outcome.RESTORED -> {
                 if (dev != null) store.recordRestore(dev.key, d.lowered, d.restored, wall)
-                if (prefs.notifyOnRestore && dev != null) Notifier.restored(app, "${dev.name}: ${d.lowered} → ${d.restored}")
+                if (prefs.notifyOnRestore && dev != null) {
+                    val again = if (d.signal == "echo") " again (Android lowered it a second time)" else ""
+                    Notifier.restored(
+                        app, "Volume restored: ${d.lowered} → ${d.restored}",
+                        "Android lowered ${dev.name} to ${d.lowered}/${audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC)}; " +
+                            "VolumeKeeper put it back to ${d.restored}$again.",
+                    )
+                }
                 val n = d.notice
                 if (prefs.dismissSystemNotice && n != null && !n.simulated && d.signal != "echo") VkListenerService.cancel(n.key)
             }

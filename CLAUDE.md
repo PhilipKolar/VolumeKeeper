@@ -30,13 +30,15 @@ It replaces a MacroDroid macro ("notification from System UI containing 'volume 
 volume 100%"). **That macro must stay off while VolumeKeeper's master switch is on** — both reacting
 to the same notification race, and MacroDroid's 100% can land last. As of 2026-10-12 Phil has it off.
 
-**Current state (2026-10-12):** v0.1.1 (release variant) is installed on the Pixel with its master
-switch on and every setup item granted (listener, Nearby devices, notifications, battery unrestricted —
-granted over adb), "Tell me when it restores" turned on for the real-world trial, waiting for a real
-lowering; the dev variant (0.1.0) is installed with its master
-switch off. Spikes S1, S3 and S4 passed on the phone (docs/csd-findings.md § 9); S5 — forcing a real
-lowering — could not be completed because the WH-1000XM5 does not accumulate sound dose on this
-build, so the first real lowering is the S5 test. Repo is public (made so 2026-10-12 at Phil's request).
+**Current state (2026-10-12):** Phil runs **only the dev variant** (`com.philkolar.volumekeeper.dev`,
+"VolumeKeeper Dev") — the release app was uninstalled at his request. Its master switch is on, every
+setup item is granted (listener, Nearby devices, notifications, battery unrestricted), and restore
+notifications are on (the default since 0.1.2: Phil wants to know every time VolumeKeeper changes his
+audio). It waits for a real-world lowering. Spikes S1, S3 and S4 passed on the phone
+(docs/csd-findings.md § 9); S5 — forcing a real lowering — could not be completed because the
+WH-1000XM5 does not accumulate sound dose on this build, so the first real lowering is the S5 test.
+Deploys therefore use `gh workflow run build-android.yml --ref develop -f variant=dev` (master pushes
+still build the release variant, which is not installed). Repo is public (2026-10-12, at Phil's request).
 
 ---
 
@@ -149,7 +151,7 @@ pauses it for 30 min. All timing constants live in `core/Windows.kt` and nowhere
 |-------|-------|--------|
 | 0 | Repo (private, develop/master), Expo app, native module, CI, GitHub-only APK build, keystore + secrets, docs | **done** 2026-10-12 (v0.1.0 pushed; CI + builds dispatched) |
 | 1 | Spikes S1–S6 on the phone (device-checklist items 3–7) | S1, S3, S4 **passed** 2026-10-12 (background + screen-off restores accepted, procstate 5 + capability A, ~0.3 s notice delivery). S5 waits for a real lowering (the Sony does not accumulate dose). S2 partly (volume + output traces seen). S6 not run. |
-| 2 | MVP acceptance (items 8–12), release variant installed, one-week soak | 0.1.1 release installed 2026-10-12, master on; real-world soak started |
+| 2 | MVP acceptance (items 8–12), release variant installed, one-week soak | dev variant 0.1.2 is Phil's install (release uninstalled at his request); real-world soak started 2026-10-12 |
 | 3 | Polish (items 13–15): keep-alive UX, notifications, CSV share, health notification | partly in 0.1.0 (toggles exist) |
 
 ---
@@ -185,7 +187,8 @@ gh run list --workflow=build-android.yml --limit 3
 ./scripts/vk.sh install .apks/<run>/<artifact>/<name>.apk            # force-stop, install, print versionName
 ```
 A build takes ~10–15 min. Both variants are signed with the release keystore, so updates install
-over each other in place; the two variants are separate apps with separate data.
+over each other in place; the two variants are separate apps with separate data. **Phil uses the dev
+variant** — deploy with `-f variant=dev` unless he asks for the release app.
 
 ### Deploy to the Pixel and verify it yourself (the standing loop)
 Phil's standing instruction after a change is "deploy and test on my phone" — run the whole loop
@@ -267,7 +270,7 @@ See "Building — GitHub only" above. The workflow fails if the APK comes out de
 ### Versioning
 `./scripts/bump-version.sh patch|minor|major` bumps `app/app.json` version and `app/app.config.ts`
 versionCode together (CI's clean prebuild bakes them in). patch = fixes/tweaks, minor = features,
-major = redesign. Current: **0.1.1 / versionCode 2** (release installed on the Pixel 2026-10-12).
+major = redesign. Current: **0.1.2 / versionCode 3** (dev variant installed on the Pixel 2026-10-12).
 
 ### Git workflow (summary — full rule at the top of this file)
 - Every finished task ends with a commit AND a push on `develop`, then a fast-forward of `master`
@@ -283,6 +286,8 @@ major = redesign. Current: **0.1.1 / versionCode 2** (release installed on the P
   `#5b8def`, success green `#22e39a`, warning `#eab308`, danger `#ef4444`). No hex anywhere else in
   TS/TSX (smoke test enforces; mark unavoidable brand colours `// brand-color`).
 - Tab bar: pill active indicator, no labels, Ionicons (pulse / headset / list).
+- Every restore posts a silent "Volume restored: 6 → 22" notification (channel `vk_restores_v1`,
+  IMPORTANCE_LOW: status-bar icon, no sound over music). On by default; Settings can turn it off.
 - Event rows: green check = restored, red = failed, grey = left alone (with the reason first), amber =
   near miss. Levels read `18/25`; the level bar's yellow tick is RS1.
 
